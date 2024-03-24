@@ -1,0 +1,4 @@
+*.pkl
+.env
+.venv
+default_requirements.txt
