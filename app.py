@@ -11,6 +11,9 @@ from langchain.chains.question_answering import load_qa_chain
 from langchain.callbacks import get_openai_callback
 import os
 
+# Define the VectorStore directory
+vectorstore_directory = os.path.join(os.path.dirname(__file__), 'VectorStore')
+
 # Sidebar contents
 with st.sidebar:
     st.title('Guru AI')
@@ -21,8 +24,8 @@ with st.sidebar:
 
     st.title('Previous Files')
     script_directory = os.path.dirname(__file__)
-    # adding name without extension
-    files = [file for file in os.listdir(script_directory) if file.endswith('.pkl')]
+    # Get all .pkl files in the VectorStore directory
+    files = [file for file in os.listdir(vectorstore_directory) if file.endswith('.pkl')]
     files = [file[:-4] for file in files]
 
     # Create a dropdown menu with all the .pkl files
@@ -41,7 +44,7 @@ def main():
     pdf = st.file_uploader("Upload your PDF", type='pdf')
 
     # Check if there are any .pkl files in the directory
-    pkl_files = [file for file in os.listdir() if file.endswith('.pkl')]
+    pkl_files = [file for file in os.listdir(vectorstore_directory) if file.endswith('.pkl')]
 
     if pdf is not None or pkl_files:
         if pdf is not None:
@@ -57,8 +60,9 @@ def main():
             )
             chunks = text_splitter.split_text(text=text)
 
-            store_name = pdf.name[:-4]
-            st.header(f'{store_name}')
+            store_name = os.path.join(vectorstore_directory, pdf.name[:-4])
+            # writing file name without extension
+            st.header(f'{pdf.name[:-4]}')
 
             if os.path.exists(f"{store_name}.pkl"):
                 print("Loading from pickle file")
@@ -74,7 +78,7 @@ def main():
         elif pkl_files:
             # Load the selected pkl file, write the name of the file
             st.header(f'{selected_file}')
-            with open(f"{selected_file}.pkl", "rb") as f:
+            with open(os.path.join(vectorstore_directory, f"{selected_file}.pkl"), "rb") as f:
                 VectorStore = pickle.load(f)
 
 
