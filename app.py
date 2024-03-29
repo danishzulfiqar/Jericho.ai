@@ -58,7 +58,7 @@ def main():
             chunks = text_splitter.split_text(text=text)
 
             store_name = pdf.name[:-4]
-            st.write("Current Data: " + f'{store_name}')
+            st.header(f'{store_name}')
 
             if os.path.exists(f"{store_name}.pkl"):
                 print("Loading from pickle file")
@@ -73,7 +73,7 @@ def main():
 
         elif pkl_files:
             # Load the selected pkl file, write the name of the file
-            st.write("Current Data: " + f'{selected_file}')
+            st.header(f'{selected_file}')
             with open(f"{selected_file}.pkl", "rb") as f:
                 VectorStore = pickle.load(f)
 
