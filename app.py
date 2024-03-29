@@ -21,12 +21,12 @@ with st.sidebar:
 
     st.title('Previous Files')
     script_directory = os.path.dirname(__file__)
-    files = [file for file in os.listdir(
-        script_directory) if file.endswith('.pkl')]
-    # writing file name without .pkl extension
+    # adding name without extension
+    files = [file for file in os.listdir(script_directory) if file.endswith('.pkl')]
+    files = [file[:-4] for file in files]
 
-    for file in files:
-        st.write(file[:-4])
+    # Create a dropdown menu with all the .pkl files
+    selected_file = st.selectbox('Select a file', files)
 
     add_vertical_space(5)
     st.write('Made with ❤️ by [Danish](https://danishzulfiqar.com)')
@@ -58,7 +58,7 @@ def main():
             chunks = text_splitter.split_text(text=text)
 
             store_name = pdf.name[:-4]
-            st.write(f'{store_name}')
+            st.write("Current Data: " + f'{store_name}')
 
             if os.path.exists(f"{store_name}.pkl"):
                 print("Loading from pickle file")
@@ -72,9 +72,11 @@ def main():
                     pickle.dump(VectorStore, f)
 
         elif pkl_files:
-            default_pkl_file = pkl_files[0]
-            with open(default_pkl_file, "rb") as f:
+            # Load the selected pkl file, write the name of the file
+            st.write("Current Data: " + f'{selected_file}')
+            with open(f"{selected_file}.pkl", "rb") as f:
                 VectorStore = pickle.load(f)
+
 
         # Accept user questions/query
         query = st.text_input("Ask questions about your PDF file:")
@@ -92,7 +94,7 @@ def main():
             # Display the references if user clicks on the button
             def stream_data():
                 for doc in docs:
-                    st.write(doc)
+                    st.write(doc.page_content)
 
             if st.button("Show References"):
                 stream_data()
