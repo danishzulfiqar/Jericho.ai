@@ -13,12 +13,13 @@ import os
 
 # Define the VectorStore directory
 vectorstore_directory = os.path.join(os.path.dirname(__file__), 'VectorStore')
+ToolName = "Jericho"
+uploadable = False
 
 # Sidebar contents
 with st.sidebar:
-    st.title('Guru AI')
-    st.write(
-        "Guru AI is a tool that helps you to search for answers in your PDF files.")
+    st.title(ToolName)
+    st.write("An AI tool embedded upon vectors from specified dataset")
 
     add_vertical_space(1)
 
@@ -38,10 +39,9 @@ load_dotenv()
 
 
 def main():
-    st.header("Guru AI")
+    st.header(ToolName)
 
-    # upload a PDF file
-    pdf = st.file_uploader("Upload your PDF", type='pdf')
+    pdf = st.file_uploader("Upload your Document", type='pdf', disabled=not uploadable, help="Upload a PDF file to get started" if uploadable else "Only admin can upload PDFs")
 
     # Check if there are any .pkl files in the directory
     pkl_files = [file for file in os.listdir(vectorstore_directory) if file.endswith('.pkl')]
@@ -62,7 +62,7 @@ def main():
 
             store_name = os.path.join(vectorstore_directory, pdf.name[:-4])
             # writing file name without extension
-            st.header(f'{pdf.name[:-4]}')
+            st.subheader(f'{pdf.name[:-4]}')
 
             if os.path.exists(f"{store_name}.pkl"):
                 print("Loading from pickle file")
@@ -77,15 +77,16 @@ def main():
 
         elif pkl_files:
             # Load the selected pkl file, write the name of the file
-            st.header(f'{selected_file}')
+            st.subheader(f'{selected_file}')
             with open(os.path.join(vectorstore_directory, f"{selected_file}.pkl"), "rb") as f:
                 VectorStore = pickle.load(f)
 
 
-        # Accept user questions/query
-        query = st.text_input("Ask questions about your PDF file:")
+        # Accept user questions/query with query file
+        query = st.chat_input("Ask me anything from")
 
         if query:
+            
             docs = VectorStore.similarity_search(query=query, k=3)
 
             llm = OpenAI(temperature=0, model_name="gpt-3.5-turbo")
@@ -93,15 +94,14 @@ def main():
             with get_openai_callback() as cb:
                 response = chain.run(input_documents=docs, question=query)
                 print(cb)
-            st.write(response)
-
-            # Display the references if user clicks on the button
-            def stream_data():
-                for doc in docs:
-                    st.write(doc.page_content)
-
-            if st.button("Show References"):
-                stream_data()
+            
+            with st.chat_message("Jericho", avatar="https://avatars.githubusercontent.com/u/102870087?s=400&u=1c2dfa41026169b5472579d4d36ad6b2fe473b6d&v=4"):
+                st.markdown(''':bold[Jericho]''')
+                st.write(response)
+               
+                with st.expander("References"):
+                    for doc in docs:
+                        st.info(doc.page_content)
 
 
 if __name__ == '__main__':
