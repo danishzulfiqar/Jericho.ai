@@ -9,12 +9,16 @@ from langchain.vectorstores import FAISS
 from langchain.llms import OpenAI
 from langchain.chains.question_answering import load_qa_chain
 from langchain.callbacks import get_openai_callback
+from langchain.chat_models import ChatOpenAI
 import os
+import json
+import datetime
 
 # Define the VectorStore directory
 vectorstore_directory = os.path.join(os.path.dirname(__file__), 'VectorStore')
 ToolName = "Jericho"
 uploadable = False
+
 
 # Sidebar contents
 with st.sidebar:
@@ -89,11 +93,46 @@ def main():
             
             docs = VectorStore.similarity_search(query=query, k=3)
 
-            llm = OpenAI(temperature=0, model_name="gpt-3.5-turbo")
+            model_name = "gpt-3.5-turbo"
+            temperature = 0
+
+            llm = OpenAI(temperature=temperature, model_name=model_name)
             chain = load_qa_chain(llm=llm, chain_type="stuff")
+
             with get_openai_callback() as cb:
                 response = chain.run(input_documents=docs, question=query)
                 print(cb)
+
+            # Loading the data from the Logs.json file
+            try:
+                with open('Logs.json', 'r') as f:
+                    data = json.load(f)
+            except FileNotFoundError:
+                    data = {}
+                
+            if selected_file not in data:
+                data[selected_file] = []
+            
+            callback = cb.to_dict() if hasattr(cb, 'to_dict') else str(cb)
+            callback = callback.split('\n')
+
+            callback = [i.replace('\t', '') for i in callback]
+            callback = [i.replace('\n', '') for i in callback]
+
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+            data[selected_file].append({
+                "model": model_name,
+                "temperature": temperature,
+                "query": query,
+                "response": response,
+                "callback": callback,
+                "timestamp": timestamp
+            })
+
+            # Save the data to the Logs.json file
+            with open('Logs.json', 'w') as f:
+                json.dump(data, f, indent=4)
             
             with st.chat_message("Jericho", avatar="https://avatars.githubusercontent.com/u/102870087?s=400&u=1c2dfa41026169b5472579d4d36ad6b2fe473b6d&v=4"):
                 st.markdown(''':bold[Jericho]''')
