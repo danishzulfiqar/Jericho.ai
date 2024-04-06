@@ -122,10 +122,14 @@ def main():
             timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
             data[selected_file].append({
-                "model": model_name,
-                "temperature": temperature,
-                "query": query,
-                "response": response,
+                "model_info": {
+                    "model": model_name,
+                    "temperature": temperature,
+                },
+                "query_data":{
+                    "query": query,
+                    "response": response,
+                },
                 "callback": callback,
                 "timestamp": timestamp
             })
