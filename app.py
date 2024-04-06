@@ -14,7 +14,9 @@ import os
 import json
 import datetime
 
-# Define the VectorStore directory
+# Define the VectorStore directory if it doesn't exist already then create it
+if not os.path.exists(os.path.join(os.path.dirname(__file__), 'VectorStore')):
+    os.makedirs(os.path.join(os.path.dirname(__file__), 'VectorStore'))
 vectorstore_directory = os.path.join(os.path.dirname(__file__), 'VectorStore')
 ToolName = "Jericho"
 uploadable = False
