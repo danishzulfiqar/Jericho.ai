@@ -46,3 +46,8 @@ cat .env.example > .env
 ```bash
 docker compose up
 ```
+
+6. Running localhost
+```bash
+http://localhost:8501
+```
