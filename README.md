@@ -47,7 +47,5 @@ cat .env.example > .env
 docker compose up
 ```
 
-6. Running localhost
-```bash
+6. Open App at localhost:
 http://localhost:8501
-```
