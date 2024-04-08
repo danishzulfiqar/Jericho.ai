@@ -13,6 +13,7 @@ from langchain.chat_models import ChatOpenAI
 import os
 import json
 import datetime
+import time
 
 # Define the VectorStore directory if it doesn't exist already then create it
 if not os.path.exists(os.path.join(os.path.dirname(__file__), 'VectorStore')):
@@ -20,34 +21,48 @@ if not os.path.exists(os.path.join(os.path.dirname(__file__), 'VectorStore')):
 vectorstore_directory = os.path.join(os.path.dirname(__file__), 'VectorStore')
 ToolName = "Jericho"
 uploadable = False
+menu_hide = False
 
+# Hide the Streamlit menu if menu_hide is True
+if  menu_hide:
+    hide_menu_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            </style>
+            """
+    st.markdown(hide_menu_style, unsafe_allow_html=True)
 
 # Sidebar contents
 with st.sidebar:
-    st.title(ToolName)
-    st.write("An AI tool embedded upon vectors from specified dataset")
+    st.title(f":red[{ToolName}]")
+    st.write("An AI tool embedded upon vectors from specified dataset to answer your queries.")
 
     add_vertical_space(1)
 
-    st.title('Previous Files')
+    st.title('Available Cources')
     script_directory = os.path.dirname(__file__)
     # Get all .pkl files in the VectorStore directory
     files = [file for file in os.listdir(vectorstore_directory) if file.endswith('.pkl')]
     files = [file[:-4] for file in files]
 
     # Create a dropdown menu with all the .pkl files
-    selected_file = st.selectbox('Select a file', files)
+    selected_file = st.selectbox('Select a Course', files)
 
-    add_vertical_space(5)
+    # moving element to bottom
+    add_vertical_space(15)
     st.write('Made with ❤️ by [Danish](https://danishzulfiqar.com)')
 
 load_dotenv()
 
 
 def main():
-    st.header(ToolName)
+    st.header(f":red[{ToolName}]")
 
-    pdf = st.file_uploader("Upload your Document", type='pdf', disabled=not uploadable, help="Upload a PDF file to get started" if uploadable else "Only admin can upload PDFs")
+    if(uploadable):
+        pdf = st.file_uploader("Upload your Document", type='pdf', disabled=not uploadable, help="Upload a PDF file to get started" if uploadable else "Only admin can upload PDFs")
+    else:
+        pdf = None
+        st.write("This Tool was designed specifically for solving multiple choice questions from hybrid cources in COMSATS Islamabad. If you have any MCQ, feel free to ask.")
 
     # Check if there are any .pkl files in the directory
     pkl_files = [file for file in os.listdir(vectorstore_directory) if file.endswith('.pkl')]
@@ -96,6 +111,8 @@ def main():
             docs = VectorStore.similarity_search(query=query, k=3)
 
             model_name = "gpt-3.5-turbo"
+            # model_name = "davinci-002"
+
             temperature = 0
 
             llm = OpenAI(temperature=temperature, model_name=model_name)
@@ -142,8 +159,10 @@ def main():
             
             with st.chat_message("Jericho", avatar="https://avatars.githubusercontent.com/u/102870087?s=400&u=1c2dfa41026169b5472579d4d36ad6b2fe473b6d&v=4"):
                 st.markdown(''':bold[Jericho]''')
-                st.write(response)
-               
+
+                with st.spinner('Searchin for the answer...'):
+                    time.sleep(5)
+                st.write(f":blue[{response}]")
                 with st.expander("References"):
                     for doc in docs:
                         st.info(doc.page_content)
