@@ -19,9 +19,13 @@ import time
 if not os.path.exists(os.path.join(os.path.dirname(__file__), 'VectorStore')):
     os.makedirs(os.path.join(os.path.dirname(__file__), 'VectorStore'))
 vectorstore_directory = os.path.join(os.path.dirname(__file__), 'VectorStore')
+
 ToolName = "Jericho"
+
+# Set the following variables to True to enable the feature
 uploadable = False
 menu_hide = False
+deploy_btn = False
 
 # Hide the Streamlit menu if menu_hide is True
 if  menu_hide:
@@ -31,6 +35,16 @@ if  menu_hide:
             </style>
             """
     st.markdown(hide_menu_style, unsafe_allow_html=True)
+
+if not deploy_btn:
+    st.markdown("""
+        <style>
+            .reportview-container {
+                margin-top: -2em;
+            }
+            .stDeployButton {display:none;}
+        </style>
+    """, unsafe_allow_html=True)
 
 # Sidebar contents
 with st.sidebar:

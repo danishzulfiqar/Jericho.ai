@@ -1,4 +1,4 @@
-*.pkl
+# *.pkl
 .env
 .venv
 default_requirements.txt
