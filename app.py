@@ -125,6 +125,7 @@ def main():
             docs = VectorStore.similarity_search(query=query, k=3)
 
             model_name = "gpt-3.5-turbo"
+            #model_name = "gpt-4"
             # model_name = "davinci-002"
 
             temperature = 0
