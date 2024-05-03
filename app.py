@@ -9,6 +9,7 @@ from langchain.vectorstores import FAISS
 from langchain.llms import OpenAI
 from langchain.chains.question_answering import load_qa_chain
 from langchain.callbacks import get_openai_callback
+from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.chat_models import ChatOpenAI
 import os
 import json
@@ -60,7 +61,7 @@ with st.sidebar:
     files = [file[:-4] for file in files]
 
     # Create a dropdown menu with all the .pkl files
-    selected_file = st.selectbox('Select a Course', files)
+    selected_file = st.selectbox('Select a Course', files, help="Select a course to get started" if files else "No courses available")
 
     # moving element to bottom
     add_vertical_space(15)
@@ -68,6 +69,50 @@ with st.sidebar:
 
 load_dotenv()
 
+
+def generate_response(query, docs, chain, model_name, temperature, selected_file):
+    # Adding callback to the chain
+    with get_openai_callback() as cb:
+        response_generator = chain.run(input_documents=docs, question=query)
+        print(cb)
+
+    for response in response_generator:
+        yield response
+        time.sleep(0.01)
+    #  Loading the data from the Logs.json file
+    try:
+        with open('Logs.json', 'r') as f:
+            data = json.load(f)
+    except FileNotFoundError:
+            data = {}
+        
+    if selected_file not in data:
+        data[selected_file] = []
+    
+    callback = cb.to_dict() if hasattr(cb, 'to_dict') else str(cb)
+    callback = callback.split('\n')
+
+    callback = [i.replace('\t', '') for i in callback]
+    callback = [i.replace('\n', '') for i in callback]
+
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    data[selected_file].append({
+        "model_info": {
+            "model": model_name,
+            "temperature": temperature,
+        },
+        "query_data":{
+            "query": query,
+            "response": response_generator,
+        },
+        "callback": callback,
+        "timestamp": timestamp
+    })
+
+    # Save the data to the Logs.json file
+    with open('Logs.json', 'w') as f:
+        json.dump(data, f, indent=4)
 
 def main():
     st.header(f":red[{ToolName}]")
@@ -125,61 +170,23 @@ def main():
             docs = VectorStore.similarity_search(query=query, k=3)
 
             model_name = "gpt-3.5-turbo"
-            # model_name = "davinci-002"
+            #model_name = "davinci-002"
 
             temperature = 0
 
-            llm = OpenAI(temperature=temperature, model_name=model_name)
+            llm = ChatOpenAI(temperature=temperature, model_name=model_name, streaming=True, callbacks=[StreamingStdOutCallbackHandler()]) 
             chain = load_qa_chain(llm=llm, chain_type="stuff")
-
-            with get_openai_callback() as cb:
-                response = chain.run(input_documents=docs, question=query)
-                print(cb)
-
-            # Loading the data from the Logs.json file
-            try:
-                with open('Logs.json', 'r') as f:
-                    data = json.load(f)
-            except FileNotFoundError:
-                    data = {}
-                
-            if selected_file not in data:
-                data[selected_file] = []
-            
-            callback = cb.to_dict() if hasattr(cb, 'to_dict') else str(cb)
-            callback = callback.split('\n')
-
-            callback = [i.replace('\t', '') for i in callback]
-            callback = [i.replace('\n', '') for i in callback]
-
-            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-            data[selected_file].append({
-                "model_info": {
-                    "model": model_name,
-                    "temperature": temperature,
-                },
-                "query_data":{
-                    "query": query,
-                    "response": response,
-                },
-                "callback": callback,
-                "timestamp": timestamp
-            })
-
-            # Save the data to the Logs.json file
-            with open('Logs.json', 'w') as f:
-                json.dump(data, f, indent=4)
             
             with st.chat_message("Jericho", avatar="https://avatars.githubusercontent.com/u/102870087?s=400&u=1c2dfa41026169b5472579d4d36ad6b2fe473b6d&v=4"):
                 st.markdown(''':bold[Jericho]''')
 
-                with st.spinner('Searchin for the answer...'):
-                    time.sleep(5)
-                st.write(f":blue[{response}]")
+                # with st.spinner('Searchin for the answer...'):
+                #     time.sleep(1)
+                st.write_stream(generate_response(query, docs, chain, model_name, temperature, selected_file))
                 with st.expander("References"):
                     for doc in docs:
                         st.info(doc.page_content)
+
 
 
 if __name__ == '__main__':
