@@ -2,13 +2,8 @@
 
 ### An AI tool made for answering Multiple Choice Questions from specific documents.
 
-This Tool was designed specifically for solving multiple choice questions from hybrid cources in COMSATS Islamabad. These cources include:
+This Tool was designed specifically for solving multiple choice questions.
 
-1. Islamic Studies (Islamiate)
-2. Pakistan Studies
-3. Report Writting Skills
-
-The accuracy of this tool for solving MCQ's for Islamiate and Pakistan studies is 99% while for Report writting skills 92%.
 
 ### Technical Details
 
