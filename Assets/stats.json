@@ -1,0 +1,16 @@
+{
+  "total_chunks": 769,
+  "embedding_dim": 1536,
+  "chunks_per_course": {
+    "Islamiat": 227,
+    "Pakistan Studies": 352,
+    "Report Writting Lecture 1-15": 190
+  },
+  "mean_chunk_chars": {
+    "Islamiat": 960.2,
+    "Pakistan Studies": 826.5,
+    "Report Writting Lecture 1-15": 960.0
+  },
+  "course_separability_knn5_cv": 0.9961,
+  "median_nearest_neighbour_cosine": 0.9082
+}
