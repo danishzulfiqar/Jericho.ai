@@ -7,6 +7,7 @@
 **Course-grounded multiple-choice answering with retrieval-augmented generation (RAG).**
 Jericho answers questions from the actual lecture handouts of a course and shows the passages it relied on.
 
+[![Documentation](https://img.shields.io/badge/Documentation-Read%20the%20project%20page-1d2836?logo=readthedocs&logoColor=white)](https://danishzulfiqar-projects.vercel.app/jericho-ai)
 ![Python](https://img.shields.io/badge/Python-3.8+-305b8a?logo=python&logoColor=white)
 ![LangChain](https://img.shields.io/badge/LangChain-RAG-b47b40)
 ![OpenAI](https://img.shields.io/badge/OpenAI-ada--002%20%C2%B7%20gpt--3.5--turbo-202c3a?logo=openai&logoColor=white)
@@ -15,6 +16,9 @@ Jericho answers questions from the actual lecture handouts of a course and shows
 ![Docker](https://img.shields.io/badge/Docker-AWS%20EC2-b47b40?logo=docker&logoColor=white)
 
 </div>
+
+
+> 📘 **Full write-up with figures:** [danishzulfiqar-projects.vercel.app/jericho-ai](https://danishzulfiqar-projects.vercel.app/jericho-ai)
 
 ## The problem
 
