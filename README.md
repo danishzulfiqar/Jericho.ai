@@ -17,7 +17,6 @@ Jericho answers questions from the actual lecture handouts of a course and shows
 
 </div>
 
-
 > 📘 **Full write-up with figures:** [danishzulfiqar-projects.vercel.app/jericho-ai](https://danishzulfiqar-projects.vercel.app/jericho-ai)
 
 ## The problem
